@@ -1,13 +1,12 @@
 /*==============================================================
-  SCRIPT 2: 02_control_schema_and_tables
-  PROJECT: SQL Data Warehouse (Medallion Architecture)
+ Script:		02_control_schema_and_tables
+ Project:		SQL Data Warehouse (Medallion Architecture)
 
-  DESCRIPTION:
-    Creates the 'ctl' schema and all supporting metadata tables
-    for ETL orchestration. These objects manage data lineage,
-    load execution, file tracking, error logging, and auditing.
+ Description:	Creates the 'ctl' schema and all supporting metadata tables
+				 for ETL orchestration. These objects manage data lineage,
+				 load execution, file tracking, error logging, and auditing.
 
-  CONTENTS:
+ Contents:
     - Creation of 'ctl' schema
     - ETL load_control table
     - Step-by-step load_log table

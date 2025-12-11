@@ -1,103 +1,26 @@
 /*==============================================================
-  SCRIPT: 04_load_bronze
-  PURPOSE: Load all Bronze tables via staging (BULK -> staging -> bronze)
-            with ctl.load_control / ctl.load_log tracking, per-table
-            transactions and error handling.
-  NOTES:
-    - Requires ctl.load_control, ctl.load_log, and ctl.load_errors.
-	- Paths are literal strings (required by BULK INSERT).
-	- Ensure ERRORFILE folder exists and is writable by SQL Server.
-    - Adjust file paths or errorfile paths if needed.
+Script:        05_load_bronze.sql
+Layer:         Bronze
+Purpose:       Implements the bronze.bronze_load stored procedure, responsible for loading
+                raw CSV data into staging tables and subsequently into Bronze tables.
+
+Description:   The procedure performs a two-step load:
+                  (1) Import data from CSV files into staging tables.
+                  (2) Transfer data from staging into Bronze tables using TRUNCATE + INSERT
+                      to preserve a fully reloadable ingestion model.
+ 
+Notes:         - This script centralizes Bronze ingestion logic.
+               - No cleansing or validation happens here; all quality checks occur in Silver.
+               - Must be executed after 04_create_staging_tables.sql.
 ===============================================================*/
 
--- 1) Create staging tables (matches the CSV columns) ----------
 
--- CRM: stg_crm_cust_info 
-IF OBJECT_ID('dbo.stg_crm_cust_info','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_crm_cust_info(
-    cst_id VARCHAR(MAX),
-    cst_key VARCHAR(MAX),
-    cst_firstname VARCHAR(MAX),
-    cst_marital_status VARCHAR(MAX),
-    cst_gndr VARCHAR(MAX),
-    cst_create_date VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_crm_cust_info';
-END
 
--- CRM: stg_crm_prd_info
-IF OBJECT_ID('dbo.stg_crm_prd_info','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_crm_prd_info(
-    prd_id VARCHAR(MAX),
-    prd_key VARCHAR(MAX),
-    prd_nm VARCHAR(MAX),
-    prd_cost VARCHAR(MAX),
-    prd_line VARCHAR(MAX),
-    prd_start_dt VARCHAR(MAX),
-    prd_end_dt VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_crm_prd_info';
-END
-
--- CRM: stg_crm_sales_details
-IF OBJECT_ID('dbo.stg_crm_sales_details','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_crm_sales_details(
-    sls_ord_num VARCHAR(MAX),
-    sls_prd_key VARCHAR(MAX),
-    sls_cust_id VARCHAR(MAX),
-    sls_order_dt VARCHAR(MAX),
-    sls_ship_dt VARCHAR(MAX),
-    sls_due_dt VARCHAR(MAX),
-    sls_sales VARCHAR(MAX),
-    sls_quantity VARCHAR(MAX),
-    sls_price VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_crm_sales_details';
-END
-
--- ERP: stg_erp_loc_a101
-IF OBJECT_ID('dbo.stg_erp_loc_a101','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_erp_loc_a101(
-    cid VARCHAR(MAX),
-    cntry VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_erp_loc_a101';
-END
-
--- ERP: stg_erp_cust_az12
-IF OBJECT_ID('dbo.stg_erp_cust_az12','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_erp_cust_az12(
-    cid VARCHAR(MAX),
-    bdate VARCHAR(MAX),
-    gen VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_erp_cust_az12';
-END
-
--- ERP: stg_erp_px_cat_g1v2
-IF OBJECT_ID('dbo.stg_erp_px_cat_g1v2','U') IS NULL
-BEGIN
-  CREATE TABLE dbo.stg_erp_px_cat_g1v2(
-    id VARCHAR(MAX),
-    cat VARCHAR(MAX),
-    subcat VARCHAR(MAX),
-    maintenance VARCHAR(MAX)
-  );
-  PRINT 'Created dbo.stg_erp_px_cat_g1v2';
-END
-GO
-
--- 2) Create Procedure to load each CSV into staging tables, then move to bronze with lineage ----------
+-- Create Procedure to load each CSV into staging tables, then move to bronze with lineage ----------
 
 CREATE OR ALTER PROCEDURE bronze.load_bronze
 AS
 BEGIN
-  SET NOCOUNT ON;
 
   DECLARE 
     @file_path    NVARCHAR(1000),
@@ -115,7 +38,7 @@ BEGIN
 	@batch_end_time DATETIME2;
 
   PRINT '================================================';
-  PRINT 'Starting bronze.load_bronze_all ...';
+  PRINT 'Starting bronze.load_bronze ...';
   PRINT '================================================';
   SET @batch_start_time = GETDATE();
 
@@ -162,10 +85,10 @@ BEGIN
 
 -- Load data into Bronze from staging table
       INSERT INTO bronze.crm_cust_info (
-        cst_id, cst_key, cst_firstname, cst_marital_status, cst_gndr, cst_create_date,
+        cst_id, cst_key, cst_firstname, cst_lastname, cst_marital_status, cst_gndr, cst_create_date,
         dwh_load_id, dwh_file_name, dwh_received_at
       )
-      SELECT cst_id, cst_key, cst_firstname, cst_marital_status, cst_gndr, cst_create_date,
+      SELECT cst_id, cst_key, cst_firstname, cst_lastname, cst_marital_status, cst_gndr, cst_create_date,
              @load_id, @file_path, @start_ts
       FROM dbo.stg_crm_cust_info;
 
