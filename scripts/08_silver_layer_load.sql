@@ -51,6 +51,8 @@ BEGIN
 
 -- 2) Insert bad-date rows into audit (if any)
 
+	TRUNCATE TABLE dbo.audit_bad_dates_cust_create
+
 	INSERT INTO dbo.audit_bad_dates_cust_create (source_cst_id, raw_cst_create_date, dwh_file_name, dwh_received_at)
 	SELECT
 	  cst_id,
@@ -159,6 +161,8 @@ BEGIN
 -- 2) Populate audit table with rows that have parsing errors
 --     - prd_cost non-empty but cannot convert to DECIMAL(10,2)
 --     - prd_start_dt non-empty but cannot convert to DATE
+
+	TRUNCATE TABLE dbo.audit_bad_prd_rows
 
 	INSERT INTO dbo.audit_bad_prd_rows (
 				prd_id, prd_key, raw_prd_cost, raw_prd_start_dt, raw_prd_end_dt, reason, dwh_file_name, dwh_received_at
@@ -301,6 +305,8 @@ BEGIN
 -- 2) Populate audit table with rows that are problematic:
 --     - conversion failures for date/number when raw value is non-empty
 --     - business inconsistencies (zero/negative values or sales != qty * price)
+
+	TRUNCATE TABLE dbo.audit_bad_sales_rows
 
 	INSERT INTO dbo.audit_bad_sales_rows (
 	  sls_ord_num, sls_prd_key, sls_cust_id,
@@ -522,6 +528,8 @@ BEGIN
 
 -- 2) Populate audit table with problematic rows
 
+	TRUNCATE TABLE dbo.audit_erp_cust_az12
+
 	INSERT INTO dbo.audit_erp_cust_az12 (
 	  raw_cid, raw_bdate, raw_gen, reason, dwh_file_name, dwh_received_at
 	)
@@ -645,6 +653,8 @@ BEGIN
 
 -- 2) Populate audit table with problematic rows
 
+	TRUNCATE TABLE dbo.audit_erp_loc_a101
+
 	INSERT INTO dbo.audit_erp_loc_a101 (
 	  raw_cid, norm_cid, raw_cntry, norm_cntry, reason, dwh_file_name, dwh_received_at
 	)
@@ -757,55 +767,58 @@ BEGIN
 
 
 -- 2) Populate audit table for rows that fail expected patterns
-INSERT INTO dbo.audit_px_cat_g1v2 (
-  raw_id, raw_cat, raw_subcat, raw_maintenance,
-  norm_id, norm_cat, norm_subcat, norm_maintenance,
-  reason, dwh_file_name, dwh_received_at
-)
-SELECT
-  br.id,
-  br.cat,
-  br.subcat,
-  br.Maintenance,
-  NULLIF(TRIM(br.id),'') AS norm_id,
-  NULLIF(TRIM(br.cat),'') AS norm_cat,
-  NULLIF(TRIM(br.subcat),'') AS norm_subcat,
-  CASE 
-    WHEN UPPER(NULLIF(TRIM(br.Maintenance),'')) IN ('Y','YES') THEN 'Yes'
-    WHEN UPPER(NULLIF(TRIM(br.Maintenance),'')) IN ('N','NO') THEN 'No'
-    WHEN NULLIF(TRIM(br.Maintenance),'') IS NULL THEN NULL
-    ELSE TRIM(br.Maintenance)
-  END AS norm_maintenance,
-  RTRIM(
+
+	TRUNCATE TABLE dbo.audit_px_cat_g1v2
+
+	INSERT INTO dbo.audit_px_cat_g1v2 (
+	  raw_id, raw_cat, raw_subcat, raw_maintenance,
+	  norm_id, norm_cat, norm_subcat, norm_maintenance,
+	  reason, dwh_file_name, dwh_received_at
+	)
+	SELECT
+	  br.id,
+	  br.cat,
+	  br.subcat,
+	  br.Maintenance,
+	  NULLIF(TRIM(br.id),'') AS norm_id,
+	  NULLIF(TRIM(br.cat),'') AS norm_cat,
+	  NULLIF(TRIM(br.subcat),'') AS norm_subcat,
+	  CASE 
+		WHEN UPPER(NULLIF(TRIM(br.Maintenance),'')) IN ('Y','YES') THEN 'Yes'
+		WHEN UPPER(NULLIF(TRIM(br.Maintenance),'')) IN ('N','NO') THEN 'No'
+		WHEN NULLIF(TRIM(br.Maintenance),'') IS NULL THEN NULL
+		ELSE TRIM(br.Maintenance)
+	  END AS norm_maintenance,
+	  RTRIM(
     CASE 
 		WHEN NULLIF(TRIM(br.id),'') IS NULL THEN 'missing_id' 
 		ELSE '' 
 	END
     + CASE 
 		WHEN NULLIF(TRIM(br.cat),'') IS NULL THEN ';missing_cat' 
-		ELSE '' 
-	END
-    + CASE 
-		WHEN NULLIF(TRIM(br.subcat),'') IS NULL THEN ';missing_subcat' 
-		ELSE '' 
-	END
-    + CASE 
-		WHEN NULLIF(TRIM(br.Maintenance),'') IS NOT NULL AND UPPER(NULLIF(TRIM(br.Maintenance),'')) NOT IN ('Y','YES','N','NO')
-           THEN ';unexpected_maintenance' 
-		ELSE '' 
-	END
-  ) AS reason,
-  br.dwh_file_name,
-  br.dwh_received_at
-FROM bronze.erp_px_cat_g1v2 br
-WHERE
-  (
-    NULLIF(TRIM(br.id),'') IS NULL
-    OR NULLIF(TRIM(br.cat),'') IS NULL
-    OR NULLIF(TRIM(br.subcat),'') IS NULL
-    OR ( NULLIF(TRIM(br.Maintenance),'') IS NOT NULL
-         AND UPPER(NULLIF(TRIM(br.Maintenance),'')) NOT IN ('Y','YES','N','NO') )
-  );
+			ELSE '' 
+		END
+		+ CASE 
+			WHEN NULLIF(TRIM(br.subcat),'') IS NULL THEN ';missing_subcat' 
+			ELSE '' 
+		END
+		+ CASE 
+			WHEN NULLIF(TRIM(br.Maintenance),'') IS NOT NULL AND UPPER(NULLIF(TRIM(br.Maintenance),'')) NOT IN ('Y','YES','N','NO')
+			   THEN ';unexpected_maintenance' 
+			ELSE '' 
+		END
+	  ) AS reason,
+	  br.dwh_file_name,
+	  br.dwh_received_at
+	FROM bronze.erp_px_cat_g1v2 br
+	WHERE
+	  (
+		NULLIF(TRIM(br.id),'') IS NULL
+		OR NULLIF(TRIM(br.cat),'') IS NULL
+		OR NULLIF(TRIM(br.subcat),'') IS NULL
+		OR ( NULLIF(TRIM(br.Maintenance),'') IS NOT NULL
+			 AND UPPER(NULLIF(TRIM(br.Maintenance),'')) NOT IN ('Y','YES','N','NO') )
+	  );
 
 	SET @end_time = GETDATE();
 					  PRINT '>> Load Duration: ' + CAST(DATEDIFF(second, @start_time, @end_time) AS NVARCHAR) + ' seconds.';
@@ -860,4 +873,6 @@ END
   PRINT 'silver.load_silver completed at ' + CONVERT(VARCHAR(30), @end_ts, 121);
   PRINT '================================================';
 END;
+
+-- EXEC silver.load_silver 
 

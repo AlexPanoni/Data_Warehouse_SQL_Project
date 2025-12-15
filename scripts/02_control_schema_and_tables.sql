@@ -1,4 +1,4 @@
-/*==============================================================
+/*===========================================================================
  Script:		02_control_schema_and_tables
  Project:		SQL Data Warehouse (Medallion Architecture)
 
@@ -13,7 +13,7 @@
     - Row-level load_errors table
     - source_system lookup table
     - Constraints, defaults, and indexes
-===============================================================*/
+============================================================================*/
 
 USE DataWarehouse;
 GO

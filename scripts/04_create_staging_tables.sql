@@ -1,4 +1,4 @@
-/*==============================================================
+/*====================================================================================
 Script:        04_create_staging_tables.sql
 Layer:         Bronze (Staging)
 
@@ -12,7 +12,7 @@ Description:   This script defines the staging schema and its tables, ensuring a
 Notes:         
 				- Executed before 05_load_bronze.sql.
                 - Staging tables are truncated and reloaded during full refresh operations.
-===============================================================*/
+=====================================================================================*/
 
 
 -- Create staging tables (matches the CSV columns) ----------

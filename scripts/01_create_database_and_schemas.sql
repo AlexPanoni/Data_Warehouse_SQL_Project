@@ -1,4 +1,4 @@
-/*============================================================================
+/*=====================================================================================
    Script: 01_create_database_and_schemas.sql
    Purpose: Initializes the Data Warehouse environment by creating the main 
             database and the Medallion Architecture schemas (bronze, silver, gold).
@@ -13,7 +13,7 @@
      - gold: Business-ready, analytics-focused data
 
    This is the first step in building the full data pipeline.
- ============================================================================*/
+ =====================================================================================*/
 
 
 USE master;
