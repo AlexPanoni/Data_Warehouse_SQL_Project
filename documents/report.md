@@ -181,7 +181,7 @@ These visuals complement the written documentation and provide an at-a-glance un
 
 ### Data Architecture
 
-![Data Warehouse Architecture](docs/images/architecture.png)
+![Data Warehouse Architecture](images/architecture.png) 
 
 *Figure 1 – Data Warehouse architecture illustrating the Staging, Bronze, Silver, and Gold layers.*
 
