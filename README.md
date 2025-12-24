@@ -69,12 +69,17 @@ This structure enables efficient slicing and aggregation by customer, product, a
 ```text
 .
 ├── datasets/
-│   ├── crm_cust_info.csv
-│   ├── crm_prd_info.csv
-│   ├── crm_sales_details.csv
-│   ├── erp_cust_az12.csv
-│   ├── erp_loc_a101.csv
-│   └── erp_px_cat_g1v2.csv
+|     ├── landing
+│         ├── crm_cust_info.csv
+│         ├── crm_prd_info.csv
+│         ├── crm_sales_details.csv
+│         ├── erp_cust_az12.csv
+│         ├── erp_loc_a101.csv
+│         └── erp_px_cat_g1v2.csv
+|     └── gold_exports
+│         ├── dim_customer.csv.csv
+│         ├── dim_customer.csv.csv
+│         └── fact_sales.csv
 │
 ├── scripts/
 │   ├── 01_create_database_and_schemas.sql
@@ -101,10 +106,12 @@ This structure enables efficient slicing and aggregation by customer, product, a
 │   │   ├── integration_model.png
 │   │   └── star_schema.png
 │   │
-│   ├── REPORT.pdf
+│   ├── DWH_Report.pdf
 │   ├── REPORT.md
-│   ├── DATA_CATALOG.pdf
-│   └── DATA_CATALOG.md
+│   ├── DWH_Gold_Data_Catalog.pdf
+│   ├── DATA_CATALOG.md
+|   ├── Dashboard.png
+|   └── Sales Analytics Dashboard – SQL Data Warehouse Project.twb
 │
 └── README.md
 ```
@@ -136,7 +143,7 @@ The Gold layer produced here is ready to be consumed by BI tools and will serve 
 
 ---
 
-## UPDATE – Dashboard Analysis
+## ***UPDATE – Dashboard Analysis
 
 As a final step, the Gold layer of the data warehouse was exported to CSV and loaded into Tableau Public to build an executive-level analytical dashboard. The dashboard is based on the analytical star schema and enables interactive exploration of sales performance, customer demographics, and product behavior.
 
@@ -144,17 +151,15 @@ The design emphasizes business logic correctness (e.g., distinct order counting,
 
 ### Interactive Dashboard
 
-<iframe
-  src="https://public.tableau.com/views/Dashboard_Analysis_17665628831500/Dashboard?:language=en-US&:display_count=n&:origin=viz_share_link"
-  width="100%"
-  height="800"
-  frameborder="0">
-</iframe>
+Click on the image to be redirected to the full interactive version.
+
+[![Interactive Tableau Dashboard](documents/Dashboard.png)](https://public.tableau.com/views/Dashboard_Analysis_17665628831500/Dashboard?:language=en-US)
 
 
 This step completes the end-to-end flow from raw data ingestion to decision-ready analytics.
 
 
+Thanks! 🚀
 
 ---
 
