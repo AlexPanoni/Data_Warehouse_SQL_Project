@@ -136,6 +136,28 @@ The Gold layer produced here is ready to be consumed by BI tools and will serve 
 
 ---
 
+## UPDATE – Dashboard Analysis
+
+As a final step, the Gold layer of the data warehouse was exported to CSV and loaded into Tableau Public to build an executive-level analytical dashboard. The dashboard is based on the analytical star schema and enables interactive exploration of sales performance, customer demographics, and product behavior.
+
+The design emphasizes business logic correctness (e.g., distinct order counting, surrogate keys, and filter-aware KPIs), data quality transparency, and full cross-filter interactivity, allowing users to drill into specific countries, customer segments, products, and time periods.
+
+### Interactive Dashboard
+
+<iframe
+  src="https://public.tableau.com/views/Dashboard_Analysis_17665628831500/Dashboard?:language=en-US&:display_count=n&:origin=viz_share_link"
+  width="100%"
+  height="800"
+  frameborder="0">
+</iframe>
+
+
+This step completes the end-to-end flow from raw data ingestion to decision-ready analytics.
+
+
+
+---
+
 ## Acknowledgements
 
 This project was inspired in part by a tutorial from Baraa through his YouTube channel [Data with Baraa](https://www.youtube.com/@DataWithBaraa)
